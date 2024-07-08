@@ -1,0 +1,24 @@
+version: '3'
+services:
+  psychologist-db:
+    image: postgres
+    container_name: psychologist-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lkASD123c!
+      POSTGRES_DB: psychologist-db
+    ports:
+      - "5432:5432"
+    restart: always
+
+  psychologist-db-ui:
+    image: dpage/pgadmin4
+    container_name: psychologist-db-ui
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - psychologist-db
+    restart: always
