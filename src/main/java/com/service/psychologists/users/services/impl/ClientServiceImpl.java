@@ -34,7 +34,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public Optional<Client> findByEmail(String email) {
-        Optional<ClientEntity> client = clientRepository.findByCredentialsEmail(email);
+        Optional<ClientEntity> client = clientRepository.findByEmail(email);
         return client.map(clientMapper::mapFrom);
     }
 

@@ -1,5 +1,6 @@
 package com.service.psychologists.users.domain.entities;
 
+import com.service.psychologists.users.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,9 +15,13 @@ public class CredentialsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column( nullable = false)
     private String email;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 }

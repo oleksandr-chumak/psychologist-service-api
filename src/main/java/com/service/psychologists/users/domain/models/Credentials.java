@@ -1,5 +1,6 @@
 package com.service.psychologists.users.domain.models;
 
+import com.service.psychologists.users.domain.enums.UserRole;
 import lombok.*;
 
 @Data
@@ -12,4 +13,6 @@ public class Credentials {
     private String email;
 
     private String password;
+
+    private UserRole role;
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface ClientRepository extends CrudRepository<ClientEntity, Long> {
 
-    @Query(value = "from ClientEntity c inner join CredentialsEntity cr on c.credentials.id = cr.id where cr.email=:email")
-    Optional<ClientEntity> findByCredentialsEmail(@Param("email") String email);
+    @Query("from ClientEntity c inner join CredentialsEntity cr on c.credentials.id = cr.id where cr.email = :email and cr.role = com.service.psychologists.users.domain.enums.UserRole.CLIENT")
+    Optional<ClientEntity> findByEmail(@Param("email") String email);
+
 }

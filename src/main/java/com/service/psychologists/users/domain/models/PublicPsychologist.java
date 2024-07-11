@@ -12,7 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Psychologist {
+public class PublicPsychologist {
     private Long id;
 
     private String firstName;
@@ -20,6 +20,8 @@ public class Psychologist {
     private String lastName;
 
     private String fullName;
+
+    private String email;
 
     private Integer experienceAmount;
 
@@ -35,11 +37,5 @@ public class Psychologist {
 
     private Integer ratePerHour;
 
-    private Credentials credentials;
-
     private Date createdAt;
-
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
 }
