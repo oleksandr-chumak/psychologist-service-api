@@ -36,4 +36,10 @@ public class PsychologistServiceImpl implements PsychologistService {
         return foundPsychologist.map(psychologistMapper::mapFrom);
     }
 
+    @Override
+    public Optional<Psychologist> findById(Long id) {
+        Optional<PsychologistEntity> psychologist = psychologistRepository.findById(id);
+        return psychologist.map(psychologistMapper::mapFrom);
+    }
+
 }

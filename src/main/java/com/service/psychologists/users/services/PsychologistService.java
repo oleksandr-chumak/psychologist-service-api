@@ -9,4 +9,6 @@ public interface PsychologistService {
     Psychologist create(Psychologist data);
 
     Optional<Psychologist> findByEmail(String email);
+
+    Optional<Psychologist> findById(Long id);
 }
