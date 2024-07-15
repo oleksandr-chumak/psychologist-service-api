@@ -5,8 +5,10 @@ import com.service.psychologists.users.domain.entities.PsychologistEntity;
 import com.service.psychologists.users.domain.models.Psychologist;
 import com.service.psychologists.users.repositories.PsychologistRepository;
 import com.service.psychologists.users.services.PsychologistService;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 @Service
@@ -28,6 +30,12 @@ public class PsychologistServiceImpl implements PsychologistService {
     public Psychologist create(Psychologist data) {
         PsychologistEntity createdPsychologist = psychologistRepository.save(psychologistMapper.mapTo(data));
         return psychologistMapper.mapFrom(createdPsychologist);
+    }
+
+    @Override
+    public Page<Psychologist> findAll(Pageable pageable) {
+        Page<PsychologistEntity> psychologists = psychologistRepository.findAll(pageable);
+        return psychologists.map(psychologistMapper::mapFrom);
     }
 
     @Override

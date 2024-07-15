@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
         this.credentialsService = credentialsService;
     }
 
-
     private Set<SimpleGrantedAuthority> getAuthority(Credentials credentials) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority(credentials.getAuthority()));

@@ -51,9 +51,7 @@ public class PsychologistAuthController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Psychologist already exists");
         }
 
-        System.out.println(registerPsychologistDto);
         Psychologist psychologist = registerPsychologistDtoMapper.mapTo(registerPsychologistDto);
-        System.out.println(psychologist);
         Psychologist registeredPsychologist = authService.register(psychologist);
 
         return new ResponseEntity<>(publicPsychologistMapper.mapTo(registeredPsychologist), HttpStatus.CREATED);

@@ -32,7 +32,6 @@ public class ClientController {
     @GetMapping(path = "/me")
     @PreAuthorize("hasAuthority('ROLE_CLIENT')")
     public ResponseEntity<PublicClient> show(Principal principal) {
-        System.out.println(principal);
         Client client = clientService.findByEmail(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Client not found"));
 
