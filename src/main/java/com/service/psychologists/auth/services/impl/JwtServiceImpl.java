@@ -1,6 +1,8 @@
 package com.service.psychologists.auth.services.impl;
 
 import com.service.psychologists.auth.services.JwtService;
+import com.service.psychologists.auth.services.UserService;
+import com.service.psychologists.users.domain.models.Credentials;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -11,9 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -25,6 +25,11 @@ public class JwtServiceImpl implements JwtService {
     @Value("${security.jwt.expiration-time}")
     private long expirationTime;
 
+    private final UserService userService;
+
+    public JwtServiceImpl(final UserService userService) {
+        this.userService = userService;
+    }
 
     @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -53,13 +58,13 @@ public class JwtServiceImpl implements JwtService {
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime * 1000))
-                .signWith(getSignKey(),SignatureAlgorithm.HS256)
+                .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
 
     }
 
     private Key getSignKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -80,6 +85,17 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        final Optional<Credentials> credentials = userService.parseUsernameToCredentials(username);
+
+        if (credentials.isEmpty()) {
+            return false;
+        }
+
+        boolean usernameMatch = credentials.get().getEmail().equals(userDetails.getUsername());
+
+        boolean authorityMatch = userDetails.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals(credentials.get().getAuthority()));
+
+        return usernameMatch && authorityMatch && !isTokenExpired(token);
     }
 }

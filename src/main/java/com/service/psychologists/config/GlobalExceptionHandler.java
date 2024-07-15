@@ -1,11 +1,13 @@
 package com.service.psychologists.config;
 
+import jdk.jshell.spi.ExecutionControl;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -31,6 +33,25 @@ public class GlobalExceptionHandler {
 
         ErrorDetails errorDetails = new ErrorDetails(new Date(), statusCode, httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
 
+        return new ResponseEntity<>(errorDetails, httpStatus);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex, ServletWebRequest request) {
+        String message = ex.getMessage();
+        HttpStatus httpStatus = HttpStatus.FORBIDDEN;
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
+
+        return new ResponseEntity<>(errorDetails, httpStatus);
+    }
+
+    @ExceptionHandler(value = ExecutionControl.NotImplementedException.class)
+    public ResponseEntity<?> handleNotImplementedException(ExecutionControl.NotImplementedException ex, ServletWebRequest request) {
+        String message = ex.getMessage();
+        HttpStatus httpStatus = HttpStatus.NOT_IMPLEMENTED;
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
         return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
@@ -65,6 +86,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<?> handleResponseStatusException(HttpRequestMethodNotSupportedException ex, ServletWebRequest request) {
+        String message = ex.getMessage();
+        HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
+        return new ResponseEntity<>(errorDetails, httpStatus);
+    }
+
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<?> handleResponseStatusException(Exception ex, ServletWebRequest request) {
         System.out.println(ex.toString());
@@ -75,15 +105,6 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(new Date(), HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message, request.getRequest().getRequestURI());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<?> handleResponseStatusException(HttpRequestMethodNotSupportedException ex, ServletWebRequest request) {
-        String message = ex.getMessage();
-        HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
-
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
-        return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
     @Getter

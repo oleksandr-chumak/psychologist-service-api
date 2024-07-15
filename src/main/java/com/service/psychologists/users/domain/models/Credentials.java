@@ -8,6 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class Credentials {
+
+    private final String AUTHORITY_KEYWORD = "ROLE_";
+
     private Long id;
 
     private String email;
@@ -18,5 +21,9 @@ public class Credentials {
 
     public String getUsername() {
         return email + "_" + role;
+    }
+
+    public String getAuthority() {
+        return AUTHORITY_KEYWORD + role;
     }
 }

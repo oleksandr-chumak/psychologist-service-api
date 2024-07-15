@@ -1,12 +1,12 @@
 package com.service.psychologists.auth.services.impl;
 
+import com.service.psychologists.auth.services.UserService;
 import com.service.psychologists.users.domain.enums.UserRole;
 import com.service.psychologists.users.domain.models.Credentials;
 import com.service.psychologists.users.services.CredentialsService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -16,18 +16,18 @@ import java.util.Set;
 
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class UserServiceImpl implements UserService {
 
     final private CredentialsService credentialsService;
 
-    public UserDetailsServiceImpl(final CredentialsService credentialsService) {
+    public UserServiceImpl(final CredentialsService credentialsService) {
         this.credentialsService = credentialsService;
     }
 
 
     private Set<SimpleGrantedAuthority> getAuthority(Credentials credentials) {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + credentials.getRole()));
+        authorities.add(new SimpleGrantedAuthority(credentials.getAuthority()));
         return authorities;
     }
 
@@ -42,7 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new User(foundCredentials.getEmail(), foundCredentials.getPassword(), getAuthority(foundCredentials));
     }
 
-    private Optional<Credentials> parseUsernameToCredentials(String username) {
+    public Optional<Credentials> parseUsernameToCredentials(String username) {
         String[] credentials = username.split("_");
 
         if (credentials[0] == null || credentials[1] == null) {
