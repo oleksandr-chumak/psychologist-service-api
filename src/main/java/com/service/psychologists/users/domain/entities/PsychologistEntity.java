@@ -28,7 +28,7 @@ public class PsychologistEntity {
     @Column(nullable = false)
     private String lastName;
 
-    @Formula("firstName + \" \" + lastName")
+    @Formula(value = "concat(first_name, ' ', last_name)")
     private String fullName;
 
     @Column(nullable = false)

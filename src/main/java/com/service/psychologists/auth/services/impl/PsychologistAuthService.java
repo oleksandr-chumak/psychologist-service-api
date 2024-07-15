@@ -35,8 +35,20 @@ public class PsychologistAuthService implements AuthService<Psychologist> {
     }
 
     @Override
-    public Optional<Psychologist> login(String email, String password) {
-        return Optional.empty();
+    public Optional<Psychologist> validateUserCredentials(String email, String password) {
+        Optional<Psychologist> psychologist = psychologistService.findByEmail(email);
+
+        if(psychologist.isEmpty()) {
+            return Optional.empty();
+        }
+
+        boolean isPasswordsEqual = passwordService.compare(password, psychologist.get().getCredentials().getPassword());
+
+        if(!isPasswordsEqual) {
+            return Optional.empty();
+        }
+
+        return psychologist;
     }
 
     @Override

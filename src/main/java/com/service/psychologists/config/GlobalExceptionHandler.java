@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,8 +54,20 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleResponseStatusException(HttpMessageNotReadableException ex, ServletWebRequest request) {
+        String message = "Request body is missing.";
+
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
+
+        return new ResponseEntity<>(errorDetails, httpStatus);
+    }
+
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<?> handleResponseStatusException(Exception ex, ServletWebRequest request) {
+        System.out.println(ex.toString());
         ex.getCause().printStackTrace();
 
         String message = "Something went wrong. Please try again later";
@@ -61,6 +75,15 @@ public class GlobalExceptionHandler {
         ErrorDetails errorDetails = new ErrorDetails(new Date(), HttpStatus.INTERNAL_SERVER_ERROR.value(), HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(), message, request.getRequest().getRequestURI());
 
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(value = HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<?> handleResponseStatusException(HttpRequestMethodNotSupportedException ex, ServletWebRequest request) {
+        String message = ex.getMessage();
+        HttpStatus httpStatus = HttpStatus.METHOD_NOT_ALLOWED;
+
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), httpStatus.value(), httpStatus.getReasonPhrase(), message, request.getRequest().getRequestURI());
+        return new ResponseEntity<>(errorDetails, httpStatus);
     }
 
     @Getter

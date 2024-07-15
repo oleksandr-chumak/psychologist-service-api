@@ -1,8 +1,10 @@
 package com.service.psychologists.auth.domain.dto;
 
+import com.service.psychologists.core.annotations.Enum;
 import com.service.psychologists.users.domain.enums.ExperienceUnit;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,35 +16,39 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RegisterPsychologistDto {
 
-    @NotBlank(message = "First Name is mandatory")
+    @NotBlank(message = "firstName is mandatory")
     private String firstName;
 
-    @NotBlank(message = "Last Name is mandatory")
+    @NotBlank(message = "lastName is mandatory")
     private String lastName;
 
-    @NotBlank(message = "Email Name is mandatory")
+    @NotBlank(message = "email is mandatory")
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotBlank(message = "Password Name is mandatory")
+    @NotBlank(message = "password is mandatory")
     private String password;
 
-    @NotBlank(message = "Description is mandatory")
+    @NotBlank(message = "description is mandatory")
     private String description;
 
-    @NotBlank(message = "Experience Amount is mandatory")
+    @NotBlank(message = "specialization is mandatory")
+    private String specialization;
+
+    @NotNull(message = "experienceAmount is mandatory")
     private Integer experienceAmount;
 
-    @NotBlank(message = "Experience Unit is mandatory")
-    private ExperienceUnit experienceUnit;
+    @NotNull(message = "experienceUnit is mandatory")
+    @Enum(enumClass = ExperienceUnit.class, message = "experienceUnit must be 'YEAR' or 'MONTH'")
+    private String experienceUnit;
 
-    @NotBlank(message = "Initial Consultation is mandatory")
+    @NotBlank(message = "initialConsultation is mandatory")
     private String initialConsultation;
 
-    @NotBlank(message = "License is mandatory")
+    @NotBlank(message = "license is mandatory")
     private String license;
 
-    @NotBlank(message = "First Name is mandatory")
-    private Integer ratePerOur;
+    @NotNull(message = "ratePerOur is mandatory")
+    private int ratePerHour;
 
 }

@@ -31,8 +31,20 @@ public class ClientAuthService implements AuthService<Client> {
     }
 
     @Override
-    public Optional<Client> login(String email, String password) {
-        return Optional.empty();
+    public Optional<Client> validateUserCredentials(String email, String password) {
+        Optional<Client> client = clientService.findByEmail(email);
+
+        if(client.isEmpty()) {
+            return Optional.empty();
+        }
+
+        boolean isPasswordsEqual = passwordService.compare(password, client.get().getCredentials().getPassword());
+
+        if(!isPasswordsEqual) {
+            return Optional.empty();
+        }
+
+        return client;
     }
 
     @Override

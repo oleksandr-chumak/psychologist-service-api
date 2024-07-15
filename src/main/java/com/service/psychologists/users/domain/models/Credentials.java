@@ -15,4 +15,8 @@ public class Credentials {
     private String password;
 
     private UserRole role;
+
+    public String getUsername() {
+        return email + "_" + role;
+    }
 }
