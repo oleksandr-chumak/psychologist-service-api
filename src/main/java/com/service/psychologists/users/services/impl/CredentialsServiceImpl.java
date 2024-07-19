@@ -6,6 +6,8 @@ import com.service.psychologists.users.domain.enums.UserRole;
 import com.service.psychologists.users.domain.models.Credentials;
 import com.service.psychologists.users.repositories.CredentialsRepository;
 import com.service.psychologists.users.services.CredentialsService;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -32,8 +34,29 @@ public class CredentialsServiceImpl implements CredentialsService {
     }
 
     @Override
-    public Optional<Credentials> findCredentialsByEmailAndRole(String email, UserRole role) {
+    public Optional<Credentials> findByEmailAndRole(String email, UserRole role) {
         Optional<CredentialsEntity> credentialsEntity = credentialsRepository.findByEmailAndRole(email, role);
         return credentialsEntity.map(credentialsMapper::mapFrom);
+    }
+
+    @Override
+    public Optional<Credentials> findByUserDetails(UserDetails userDetails) {
+        GrantedAuthority authority = userDetails.getAuthorities().iterator().next();
+        String email = userDetails.getUsername();
+        String parsedRole = authority.getAuthority().split("_")[1];
+
+        if(parsedRole == null || email == null) {
+            return Optional.empty();
+        }
+
+        UserRole userRole;
+
+        try {
+            userRole = UserRole.valueOf(parsedRole);
+        }catch (IllegalArgumentException e){
+            return Optional.empty();
+        }
+
+        return findByEmailAndRole(email, userRole);
     }
 }

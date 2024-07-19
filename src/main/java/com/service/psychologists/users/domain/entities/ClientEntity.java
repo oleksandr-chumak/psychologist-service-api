@@ -1,6 +1,7 @@
 package com.service.psychologists.users.domain.entities;
 
 
+import com.service.psychologists.appointments.domain.entities.AppointmentEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Formula;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -36,6 +38,9 @@ public class ClientEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "credentials_id")
     private CredentialsEntity credentials;
+
+    @OneToMany(mappedBy = "client")
+    private Set<AppointmentEntity> appointments;
 
     // timestamps
 

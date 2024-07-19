@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/clients/**").authenticated())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/{id}", "/psychologists/").permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/{psychologistId}/appointments").permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/me").authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

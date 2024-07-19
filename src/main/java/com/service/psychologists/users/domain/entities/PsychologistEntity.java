@@ -1,5 +1,6 @@
 package com.service.psychologists.users.domain.entities;
 
+import com.service.psychologists.appointments.domain.entities.AppointmentEntity;
 import com.service.psychologists.users.domain.enums.ExperienceUnit;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Formula;
 
 import java.util.Date;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -59,6 +61,8 @@ public class PsychologistEntity {
     @JoinColumn(name = "credentials_id")
     private CredentialsEntity credentials;
 
+    @OneToMany(mappedBy = "psychologist")
+    private Set<AppointmentEntity> appointments;
 
     // timestamps
 

@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
         Credentials parsedCredentials = parseUsernameToCredentials(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
-        Credentials foundCredentials = credentialsService.findCredentialsByEmailAndRole(parsedCredentials.getEmail(), parsedCredentials.getRole())
+        Credentials foundCredentials = credentialsService.findByEmailAndRole(parsedCredentials.getEmail(), parsedCredentials.getRole())
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
         return new User(foundCredentials.getEmail(), foundCredentials.getPassword(), getAuthority(foundCredentials));
