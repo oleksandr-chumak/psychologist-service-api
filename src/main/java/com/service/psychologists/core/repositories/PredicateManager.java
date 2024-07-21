@@ -5,9 +5,10 @@ import jakarta.persistence.criteria.Root;
 
 import java.util.List;
 
-public interface BaseRepository<T> {
+public interface PredicateManager<T> {
 
-    <E extends Comparable<E>> Predicate createPredicate(Root<T> root, SearchPredicateCriteria<E> searchPredicateCriteria) throws IllegalArgumentException;
+    Predicate createPredicate(Root<T> root, SearchPredicateCriteria<?> searchPredicateCriteria) throws IllegalArgumentException;
 
     Predicate createPredicate(Root<T> root, List<SearchPredicateCriteria<?>> searchPredicateCriteria);
+
 }

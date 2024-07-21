@@ -1,9 +1,16 @@
 package com.service.psychologists.appointments.controllers;
 
+import com.service.psychologists.appointments.domain.models.Appointment;
+import com.service.psychologists.appointments.services.AppointmentService;
 import com.service.psychologists.appointments.validators.AppointmentSearchParameterValidator;
+import com.service.psychologists.core.annotations.ParsedOrderRequestParam;
 import com.service.psychologists.core.annotations.ParsedSearchRequestParam;
+import com.service.psychologists.core.repositories.Order;
+import com.service.psychologists.core.repositories.SearchPredicateCriteria;
 import com.service.psychologists.users.domain.models.Credentials;
 import com.service.psychologists.users.services.CredentialsService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,22 +25,22 @@ public class AppointmentController {
 
     final private CredentialsService credentialsService;
 
-    public AppointmentController(final CredentialsService credentialsService) {
+    final private AppointmentService appointmentService;
+
+    public AppointmentController(final CredentialsService credentialsService, final AppointmentService appointmentService) {
         this.credentialsService = credentialsService;
+        this.appointmentService = appointmentService;
     }
 
 
     @GetMapping(path = "/psychologists/{psychologistId}/appointments")
-    public String index(
+    public Page<Appointment> index(
             @PathVariable String psychologistId,
-            @ParsedSearchRequestParam(
-                    name = "filter",
-                    validator = AppointmentSearchParameterValidator.class
-            ) ArrayList<?> filter
+            @ParsedSearchRequestParam(validator = AppointmentSearchParameterValidator.class) ArrayList<SearchPredicateCriteria<?>> filter,
+            @ParsedOrderRequestParam(allowedValues = {"id"}) ArrayList<Order> order,
+            Pageable pageable
     ) {
-        System.out.println("filter");
-        System.out.println(filter);
-        return "working";
+        return appointmentService.findAll(pageable, filter, order);
     }
 
     @GetMapping(path = "/me/appointments")

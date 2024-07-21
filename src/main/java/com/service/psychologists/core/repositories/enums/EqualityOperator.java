@@ -1,4 +1,4 @@
-package com.service.psychologists.core.repositories;
+package com.service.psychologists.core.repositories.enums;
 
 public enum EqualityOperator {
     EQ,

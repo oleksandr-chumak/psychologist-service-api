@@ -16,9 +16,9 @@ import java.util.Date;
 public class Appointment {
     private Long id;
 
-    private Date from;
+    private Date startTime;
 
-    private Date to;
+    private Date endTime;
 
     private String comment;
 

@@ -24,10 +24,10 @@ public class AppointmentEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Date from;
+    private Date startTime;
 
     @Column(nullable = false)
-    private Date to;
+    private Date endTime;
 
     @Column(nullable = false)
     private String comment;

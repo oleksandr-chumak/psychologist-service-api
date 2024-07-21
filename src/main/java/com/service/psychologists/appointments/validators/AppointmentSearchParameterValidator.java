@@ -1,6 +1,6 @@
 package com.service.psychologists.appointments.validators;
 
-import com.service.psychologists.core.repositories.EqualityOperator;
+import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import com.service.psychologists.core.repositories.SearchParameterRule;
 import com.service.psychologists.core.repositories.SearchParameterValidator;
 
@@ -11,7 +11,7 @@ public class AppointmentSearchParameterValidator extends SearchParameterValidato
     public AppointmentSearchParameterValidator() {
         super(new SearchParameterRule[]{
                 new SearchParameterRule(
-                        "from",
+                        "startTime",
                         new EqualityOperator[]{
                                 EqualityOperator.GE,
                                 EqualityOperator.LE,
@@ -21,7 +21,7 @@ public class AppointmentSearchParameterValidator extends SearchParameterValidato
                         Date.class
                 ),
                 new SearchParameterRule(
-                        "to",
+                        "endTime",
                         new EqualityOperator[]{
                                 EqualityOperator.GE,
                                 EqualityOperator.LE,

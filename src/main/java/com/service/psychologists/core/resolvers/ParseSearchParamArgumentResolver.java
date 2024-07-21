@@ -2,8 +2,8 @@ package com.service.psychologists.core.resolvers;
 
 import com.service.psychologists.core.annotations.ParsedSearchRequestParam;
 import com.service.psychologists.core.helpers.ValueParser;
-import com.service.psychologists.core.repositories.ConditionOperator;
-import com.service.psychologists.core.repositories.EqualityOperator;
+import com.service.psychologists.core.repositories.enums.ConditionOperator;
+import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import com.service.psychologists.core.repositories.SearchParameterValidator;
 import com.service.psychologists.core.repositories.SearchPredicateCriteria;
 import org.springframework.core.MethodParameter;

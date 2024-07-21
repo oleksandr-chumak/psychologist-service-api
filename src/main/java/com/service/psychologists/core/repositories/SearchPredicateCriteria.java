@@ -1,5 +1,7 @@
 package com.service.psychologists.core.repositories;
 
+import com.service.psychologists.core.repositories.enums.ConditionOperator;
+import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
