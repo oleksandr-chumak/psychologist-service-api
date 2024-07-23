@@ -1,6 +1,7 @@
 package com.service.psychologists.users.domain.entities;
 
 import com.service.psychologists.appointments.domain.entities.AppointmentEntity;
+import com.service.psychologists.feedbacks.domain.entities.FeedbackEntity;
 import com.service.psychologists.users.domain.enums.ExperienceUnit;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -63,6 +64,9 @@ public class PsychologistEntity {
 
     @OneToMany(mappedBy = "psychologist")
     private Set<AppointmentEntity> appointments;
+
+    @OneToMany(mappedBy = "psychologist")
+    private Set<FeedbackEntity> feedbacks;
 
     // timestamps
 

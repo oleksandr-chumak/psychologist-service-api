@@ -2,6 +2,7 @@ package com.service.psychologists.users.domain.entities;
 
 
 import com.service.psychologists.appointments.domain.entities.AppointmentEntity;
+import com.service.psychologists.feedbacks.domain.entities.FeedbackEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +42,9 @@ public class ClientEntity {
 
     @OneToMany(mappedBy = "client")
     private Set<AppointmentEntity> appointments;
+
+    @OneToMany(mappedBy = "client")
+    private Set<FeedbackEntity> feedbacks;
 
     // timestamps
 
