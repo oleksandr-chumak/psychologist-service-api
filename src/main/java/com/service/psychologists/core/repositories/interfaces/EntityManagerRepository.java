@@ -14,5 +14,9 @@ public interface EntityManagerRepository<T> {
 
     Optional<T> findOne(ComplexQuery query);
 
+    T update(T entity);
+
+    T delete (Long id);
+
     T create(T entity);
 }

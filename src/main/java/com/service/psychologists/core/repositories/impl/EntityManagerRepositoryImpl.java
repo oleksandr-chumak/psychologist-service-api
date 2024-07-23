@@ -57,15 +57,50 @@ public class EntityManagerRepositoryImpl<T> implements EntityManagerRepository<T
     @Override
     public Optional<T> findOne(ComplexQuery query) {
         try {
-            return Optional.of(createTypedQueryFromComplexQuery(ComplexQuery
+            TypedQuery<T> typedQuery = createTypedQueryFromComplexQuery(ComplexQuery
                     .builder()
                     .filter(query.getFilter())
                     .join(query.getJoin())
                     .build()
-            ).getSingleResult());
+            );
+            List<T> result = typedQuery.setMaxResults(1).getResultList();
+
+            if (result.isEmpty()) {
+                return Optional.empty();
+            }
+
+            return Optional.of(result.get(0));
         } catch (Exception e) {
             log.warning("Error fetching single result: " + e.getMessage());
             return Optional.empty();
+        }
+    }
+
+    @Override
+    @Transactional
+    public T update(T entity) {
+        try {
+            return entityManager.merge(entity);
+        } catch (Exception e) {
+            log.warning("Error updating entity: " + e.getMessage());
+            throw new RuntimeException("Failed to update entity", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public T delete(Long id) {
+        try {
+            T entity = entityManager.find(entityClass, id);
+            if (entity != null) {
+                entityManager.remove(entity);
+                return entity;
+            } else {
+                throw new RuntimeException("Entity not found with id: " + id);
+            }
+        } catch (Exception e) {
+            log.warning("Error deleting entity: " + e.getMessage());
+            throw new RuntimeException("Failed to delete entity", e);
         }
     }
 
@@ -86,12 +121,12 @@ public class EntityManagerRepositoryImpl<T> implements EntityManagerRepository<T
         CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(entityClass);
         Root<T> root = criteriaQuery.from(entityClass);
 
-        Map<String, Join> joinMap = buildJoinMap(complexQuery.getJoin(), root);
-        List<Predicate> predicates = buildPredicates(complexQuery.getFilter(), root, joinMap);
-        List<jakarta.persistence.criteria.Order> orderList = buildOrderList(root, complexQuery.getOrder());
+        Map<String, Join> joinMap = complexQuery.getJoin() != null ? buildJoinMap(complexQuery.getJoin(), root) : new HashMap<>();
+        Predicate predicate = complexQuery.getFilter() != null ? predicateManager.createPredicate(complexQuery.getFilter(), root, joinMap) : null;
+        List<jakarta.persistence.criteria.Order> orderList = complexQuery.getOrder() != null ? buildOrderList(root, complexQuery.getOrder()) : new ArrayList<>();
 
-        if (!predicates.isEmpty()) {
-            criteriaQuery.where(predicates.toArray(new Predicate[0]));
+        if (predicate != null) {
+            criteriaQuery.where(predicate);
         }
 
         if (!orderList.isEmpty()) {
@@ -125,12 +160,12 @@ public class EntityManagerRepositoryImpl<T> implements EntityManagerRepository<T
             CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
             Root<T> root = criteriaQuery.from(entityClass);
 
-            List<Predicate> predicates = buildPredicates(filters, root, buildJoinMap(joins, root));
+            Predicate predicate = predicateManager.createPredicate(filters, root, buildJoinMap(joins, root));
 
-            if (predicates.isEmpty()) {
+            if (predicate == null) {
                 criteriaQuery.select(criteriaBuilder.count(root));
             } else {
-                criteriaQuery.select(criteriaBuilder.count(root)).where(predicates.toArray(new Predicate[0]));
+                criteriaQuery.select(criteriaBuilder.count(root)).where(predicate);
             }
 
             return entityManager.createQuery(criteriaQuery).getSingleResult();
@@ -158,28 +193,6 @@ public class EntityManagerRepositoryImpl<T> implements EntityManagerRepository<T
             });
         }
         return joinMap;
-    }
-
-    private List<Predicate> buildPredicates(List<SearchPredicateCriteria<?>> filters, Root<T> root, Map<String, Join> joinMap) {
-        List<Predicate> predicates = new ArrayList<>();
-        if (filters != null) {
-            filters.forEach(filter -> {
-                String[] splitName = filter.getName().split("\\.");
-                String path = splitName.length > 1 ? String.join(".", Arrays.copyOf(splitName, splitName.length - 1)) : null;
-                String field = splitName[splitName.length - 1];
-
-                if (path != null) {
-                    Join joinTable = joinMap.get(path);
-                    if (joinTable == null) {
-                        throw new IllegalArgumentException("Cannot find join for value with name " + filter.getName());
-                    }
-                    predicates.add(predicateManager.createPredicate(joinTable.get(field), filter));
-                } else {
-                    predicates.add(predicateManager.createPredicate(root.get(field), filter));
-                }
-            });
-        }
-        return predicates;
     }
 
     private static int countDots(String str) {

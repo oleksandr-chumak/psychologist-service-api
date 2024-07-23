@@ -5,17 +5,17 @@ import com.service.psychologists.appointments.domain.models.Appointment;
 import com.service.psychologists.appointments.repositories.AppointmentRepository;
 import com.service.psychologists.appointments.services.AppointmentService;
 import com.service.psychologists.core.repositories.models.ComplexQuery;
-import com.service.psychologists.core.repositories.models.Order;
 import com.service.psychologists.core.repositories.models.SearchPredicateCriteria;
 import com.service.psychologists.core.repositories.enums.ConditionOperator;
 import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import com.service.psychologists.core.utils.Mapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -37,11 +37,6 @@ public class AppointmentServiceImpl implements AppointmentService {
     public Appointment create(Appointment appointment) {
         AppointmentEntity createdAppointment = appointmentRepository.create(mapper.mapFrom(appointment));
         return mapper.mapTo(createdAppointment);
-    }
-
-    @Override
-    public Appointment update(Appointment appointment) {
-        return null;
     }
 
     @Override
@@ -85,19 +80,49 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public Page<Appointment> findAll(Pageable pageable, List<SearchPredicateCriteria<?>> searchPredicateCriteriaList, List<Order> orders) {
-        Page<AppointmentEntity> appointmentEntities = appointmentRepository.findPageable(ComplexQuery
+    public Optional<Appointment> findOne(ComplexQuery complexQuery) {
+        Optional<AppointmentEntity> appointmentEntity = appointmentRepository.findOne(ComplexQuery
                 .builder()
-                .order(orders)
-                .filter(searchPredicateCriteriaList)
-                .pageable(pageable)
-                .join(List.of(new String[]{"psychologist", "client"}))
+                .filter(complexQuery.getFilter())
+                .join(complexQuery.getJoin())
                 .build());
-        return appointmentEntities.map(mapper::mapTo);
+
+        return appointmentEntity.map(mapper::mapTo);
     }
 
     @Override
-    public List<Appointment> findAll(List<SearchPredicateCriteria<?>> searchPredicateCriteriaList, List<Order> orders) {
-        return List.of();
+    public Optional<Appointment> findById(Long id) {
+        Optional<AppointmentEntity> appointmentEntity = appointmentRepository.findOne(ComplexQuery
+                .builder()
+                .filter(List.of(new SearchPredicateCriteria<>("id", id, EqualityOperator.EQ, ConditionOperator.AND)))
+                .build());
+        return appointmentEntity.map(mapper::mapTo);
+    }
+
+    @Override
+    public Appointment delete(Long id) {
+        return mapper.mapTo(appointmentRepository.delete(id));
+    }
+
+    @Override
+    public Appointment update(Appointment appointment) {
+        return mapper.mapTo(appointmentRepository.update(mapper.mapFrom(appointment)));
+    }
+
+    @Override
+    public boolean checkIsDateAvailable(Long psychologistId, Date startTime, Date endTime) {
+        List<SearchPredicateCriteria<?>> criteriaList = List.of(
+                new SearchPredicateCriteria<>("startTime", startTime, EqualityOperator.GE, ConditionOperator.AND),
+                new SearchPredicateCriteria<>("endTime", endTime, EqualityOperator.LE, ConditionOperator.AND),
+                new SearchPredicateCriteria<>("psychologist.id", psychologistId, EqualityOperator.EQ, ConditionOperator.AND)
+        );
+
+        Optional<AppointmentEntity> appointment = appointmentRepository.findOne(ComplexQuery
+                .builder()
+                .filter(criteriaList)
+                .join(List.of(new String[]{"psychologist"}))
+                .build());
+
+        return appointment.isEmpty();
     }
 }

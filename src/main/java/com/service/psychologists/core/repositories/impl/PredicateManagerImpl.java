@@ -5,15 +5,10 @@ import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import com.service.psychologists.core.repositories.interfaces.PredicateManager;
 import com.service.psychologists.core.repositories.models.SearchPredicateCriteria;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.Path;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class PredicateManagerImpl<T> implements PredicateManager<T> {
@@ -42,35 +37,59 @@ public class PredicateManagerImpl<T> implements PredicateManager<T> {
     }
 
     @Override
-    public Predicate createPredicate(Root<T> root, List<SearchPredicateCriteria<?>> criteriaList) {
+    public Predicate createPredicate(List<SearchPredicateCriteria<?>> filters, Root<T> root, Map<String, Join> joinMap) {
+        if (filters == null || filters.isEmpty()) {
+            return null;
+        }
+
         List<Predicate> orPredicates = new ArrayList<>();
         List<Predicate> andPredicates = new ArrayList<>();
-        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
-        for (SearchPredicateCriteria<?> criteria : criteriaList) {
-            Predicate predicate = createPredicate(root, criteria);
-            if (criteria.getCondition() == ConditionOperator.OR) {
-                orPredicates.add(predicate);
-            } else {
-                andPredicates.add(predicate);
-            }
+        filters.forEach(filter -> processFilter(filter, root, joinMap, orPredicates, andPredicates));
+
+        return combinePredicates(orPredicates, andPredicates);
+    }
+
+    private void processFilter(SearchPredicateCriteria<?> filter, Root<T> root, Map<String, Join> joinMap,
+                               List<Predicate> orPredicates, List<Predicate> andPredicates) {
+        String[] splitName = filter.getName().split("\\.");
+        String path = splitName.length > 1 ? String.join(".", Arrays.copyOf(splitName, splitName.length - 1)) : null;
+        String field = splitName[splitName.length - 1];
+
+        Path<?> targetPath = (path != null) ? getJoinPath(joinMap, path, filter.getName()).get(field) : root.get(field);
+
+        if (filter.getCondition() == ConditionOperator.AND) {
+            andPredicates.add(createPredicate(targetPath, filter));
+        } else {
+            orPredicates.add(createPredicate(targetPath, filter));
         }
+    }
 
-        List<Predicate> finalPredicate = new ArrayList<>();
-
-        if (!orPredicates.isEmpty()) {
-            Predicate orPredicate = criteriaBuilder.or(orPredicates.toArray(new Predicate[0]));
-            finalPredicate.add(orPredicate);
+    private Join getJoinPath(Map<String, Join> joinMap, String path, String filterName) {
+        Join joinTable = joinMap.get(path);
+        if (joinTable == null) {
+            throw new IllegalArgumentException("Cannot find join for value with name " + filterName);
         }
+        return joinTable;
+    }
 
-        if (!andPredicates.isEmpty()) {
-            Predicate andPredicate = andPredicates.size() == 1 ? andPredicates.get(0) : criteriaBuilder.and(andPredicates.toArray(new Predicate[0]));
-            finalPredicate.add(andPredicate);
+    private Predicate combinePredicates(List<Predicate> orPredicates, List<Predicate> andPredicates) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
 
-            return finalPredicate.size() > 1 ? criteriaBuilder.or(finalPredicate.toArray(new Predicate[0])) : andPredicate;
+        if (!orPredicates.isEmpty() && !andPredicates.isEmpty()) {
+            return cb.and(resolvePredicates(cb, orPredicates, true), resolvePredicates(cb, andPredicates, false));
+        } else if (!orPredicates.isEmpty()) {
+            return resolvePredicates(cb, orPredicates, true);
+        } else {
+            return resolvePredicates(cb, andPredicates, false);
         }
+    }
 
-        return finalPredicate.isEmpty() ? criteriaBuilder.conjunction() : finalPredicate.get(0);
+    private Predicate resolvePredicates(CriteriaBuilder cb, List<Predicate> predicates, boolean isOr) {
+        if (predicates == null || predicates.isEmpty()) {
+            throw new IllegalArgumentException("Predicate cannot be null or empty");
+        }
+        return predicates.size() == 1 ? predicates.get(0) : (isOr ? cb.or(predicates.toArray(new Predicate[0])) : cb.and(predicates.toArray(new Predicate[0])));
     }
 
     private Predicate createGreaterThanPredicate(CriteriaBuilder cb, Path<?> path, Object value) {
