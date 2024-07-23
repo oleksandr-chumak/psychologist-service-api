@@ -2,7 +2,7 @@ package com.service.psychologists.appointments.repositories.impl;
 
 import com.service.psychologists.appointments.domain.entities.AppointmentEntity;
 import com.service.psychologists.appointments.repositories.AppointmentRepository;
-import com.service.psychologists.core.repositories.PredicateManager;
+import com.service.psychologists.core.repositories.interfaces.PredicateManager;
 import com.service.psychologists.core.repositories.impl.EntityManagerRepositoryImpl;
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;

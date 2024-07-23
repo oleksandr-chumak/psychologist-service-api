@@ -1,8 +1,9 @@
 package com.service.psychologists.appointments.services;
 
 import com.service.psychologists.appointments.domain.models.Appointment;
-import com.service.psychologists.core.repositories.Order;
-import com.service.psychologists.core.repositories.SearchPredicateCriteria;
+import com.service.psychologists.core.repositories.models.ComplexQuery;
+import com.service.psychologists.core.repositories.models.Order;
+import com.service.psychologists.core.repositories.models.SearchPredicateCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,7 +15,9 @@ public interface AppointmentService {
 
     Appointment update(Appointment appointment);
 
-    Page<Appointment> findAllByCredentialsId(Long credentialsId);
+    Page<Appointment> findAllByCredentialsId(Long credentialsId, ComplexQuery complexQuery);
+
+    Page<Appointment> findPsychologistAppointment(Long psychologistId, ComplexQuery complexQuery);
 
     Page<Appointment> findAll(Pageable pageable, List<SearchPredicateCriteria<?>> searchPredicateCriteriaList, List<Order> orders);
 

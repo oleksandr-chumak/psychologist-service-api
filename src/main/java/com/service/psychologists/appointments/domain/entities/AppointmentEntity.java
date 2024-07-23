@@ -29,7 +29,7 @@ public class AppointmentEntity {
     @Column(nullable = false)
     private Date endTime;
 
-    @Column(nullable = false)
+    @Column()
     private String comment;
 
     @ManyToOne(fetch = FetchType.EAGER)

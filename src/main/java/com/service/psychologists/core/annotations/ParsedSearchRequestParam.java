@@ -1,6 +1,6 @@
 package com.service.psychologists.core.annotations;
 
-import com.service.psychologists.core.repositories.SearchParameterValidator;
+import com.service.psychologists.core.repositories.models.SearchParameterValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,8 +1,8 @@
 package com.service.psychologists.appointments.validators;
 
 import com.service.psychologists.core.repositories.enums.EqualityOperator;
-import com.service.psychologists.core.repositories.SearchParameterRule;
-import com.service.psychologists.core.repositories.SearchParameterValidator;
+import com.service.psychologists.core.repositories.models.SearchParameterRule;
+import com.service.psychologists.core.repositories.models.SearchParameterValidator;
 
 import java.util.Date;
 

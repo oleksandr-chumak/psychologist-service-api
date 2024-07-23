@@ -1,6 +1,5 @@
 package com.service.psychologists.users.controllers;
 
-import com.service.psychologists.core.models.PaginationResponse;
 import com.service.psychologists.core.utils.Mapper;
 import com.service.psychologists.users.domain.models.Psychologist;
 import com.service.psychologists.users.domain.models.PublicPsychologist;
@@ -25,22 +24,18 @@ public class PsychologistController {
 
     private final Mapper<Psychologist, PublicPsychologist> publicPsychologistMapper;
 
-    final private Mapper<Page<PublicPsychologist>, PaginationResponse<PublicPsychologist>> pagePaginationResponseMapper;
-
     public PsychologistController(
             final PsychologistService psychologistService,
-            final Mapper<Psychologist, PublicPsychologist> publicPsychologistMapper,
-            final Mapper<Page<PublicPsychologist>, PaginationResponse<PublicPsychologist>> pagePaginationResponseMapper
+            final Mapper<Psychologist, PublicPsychologist> publicPsychologistMapper
     ) {
         this.psychologistService = psychologistService;
         this.publicPsychologistMapper = publicPsychologistMapper;
-        this.pagePaginationResponseMapper = pagePaginationResponseMapper;
     }
 
     @GetMapping(path = "/")
-    public PaginationResponse<PublicPsychologist> index(Pageable pageable) {
+    public Page<PublicPsychologist> index(Pageable pageable) {
         Page<Psychologist> psychologists = psychologistService.findAll(pageable);
-        return pagePaginationResponseMapper.mapTo(psychologists.map(publicPsychologistMapper::mapTo));
+        return psychologists.map(publicPsychologistMapper::mapTo);
     }
 
     @GetMapping(path = "/{id}")

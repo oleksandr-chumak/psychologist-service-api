@@ -15,14 +15,14 @@ public class AppointmentEntityToAppointmentMapper implements Mapper<AppointmentE
 
     final private ModelMapper modelMapper;
 
-    final private Mapper<ClientEntity, Client> clientMapper;
+    final private Mapper<Client, ClientEntity> clientMapper;
 
-    final private Mapper<PsychologistEntity, Psychologist> psychologistMapper;
+    final private Mapper<Psychologist, PsychologistEntity> psychologistMapper;
 
     public AppointmentEntityToAppointmentMapper(
             final ModelMapper modelMapper,
-            final Mapper<ClientEntity, Client> clientMapper,
-            final Mapper<PsychologistEntity, Psychologist> psychologistMapper
+            final Mapper<Client, ClientEntity> clientMapper,
+            final Mapper<Psychologist, PsychologistEntity> psychologistMapper
     ) {
         this.modelMapper = modelMapper;
         this.clientMapper = clientMapper;
@@ -32,16 +32,16 @@ public class AppointmentEntityToAppointmentMapper implements Mapper<AppointmentE
     @Override
     public Appointment mapTo(AppointmentEntity appointmentEntity) {
         Appointment appointment = modelMapper.map(appointmentEntity, Appointment.class);
-        appointment.setClient(clientMapper.mapTo(appointmentEntity.getClient()));
-        appointment.setPsychologist(psychologistMapper.mapTo(appointmentEntity.getPsychologist()));
+        appointment.setClient(clientMapper.mapFrom(appointmentEntity.getClient()));
+        appointment.setPsychologist(psychologistMapper.mapFrom(appointmentEntity.getPsychologist()));
         return appointment;
     }
 
     @Override
     public AppointmentEntity mapFrom(Appointment appointment) {
         AppointmentEntity appointmentEntity = modelMapper.map(appointment, AppointmentEntity.class);
-        appointmentEntity.setClient(clientMapper.mapFrom(appointment.getClient()));
-        appointmentEntity.setPsychologist(psychologistMapper.mapFrom(appointment.getPsychologist()));
+        appointmentEntity.setClient(clientMapper.mapTo(appointment.getClient()));
+        appointmentEntity.setPsychologist(psychologistMapper.mapTo(appointment.getPsychologist()));
         return appointmentEntity;
     }
 }

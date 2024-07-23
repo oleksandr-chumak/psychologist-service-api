@@ -2,10 +2,11 @@ package com.service.psychologists.core.repositories.impl;
 
 import com.service.psychologists.core.repositories.enums.ConditionOperator;
 import com.service.psychologists.core.repositories.enums.EqualityOperator;
-import com.service.psychologists.core.repositories.PredicateManager;
-import com.service.psychologists.core.repositories.SearchPredicateCriteria;
+import com.service.psychologists.core.repositories.interfaces.PredicateManager;
+import com.service.psychologists.core.repositories.models.SearchPredicateCriteria;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.springframework.stereotype.Component;
@@ -24,21 +25,19 @@ public class PredicateManagerImpl<T> implements PredicateManager<T> {
     }
 
     @Override
-    public Predicate createPredicate(Root<T> root, SearchPredicateCriteria<?> searchPredicateCriteria)
+    public Predicate createPredicate(Path<?> path, SearchPredicateCriteria<?> searchPredicateCriteria)
             throws IllegalArgumentException {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         EqualityOperator operator = searchPredicateCriteria.getOperator();
-        String name = searchPredicateCriteria.getName();
         Object value = searchPredicateCriteria.getValue();
 
         return switch (operator) {
-            case EQ -> cb.equal(root.get(name), value);
-            case NE -> cb.notEqual(root.get(name), value);
-            case GT -> createGreaterThanPredicate(cb, root, name, value);
-            case GE -> createGreaterThanOrEqualToPredicate(cb, root, name, value);
-            case LT -> createLessThanPredicate(cb, root, name, value);
-            case LE -> createLessThanOrEqualToPredicate(cb, root, name, value);
-            default -> throw new IllegalArgumentException("Unsupported operator: " + operator);
+            case EQ -> cb.equal(path, value);
+            case NE -> cb.notEqual(path, value);
+            case GT -> createGreaterThanPredicate(cb, path, value);
+            case GE -> createGreaterThanOrEqualToPredicate(cb, path, value);
+            case LT -> createLessThanPredicate(cb, path, value);
+            case LE -> createLessThanOrEqualToPredicate(cb, path, value);
         };
     }
 
@@ -74,41 +73,41 @@ public class PredicateManagerImpl<T> implements PredicateManager<T> {
         return finalPredicate.isEmpty() ? criteriaBuilder.conjunction() : finalPredicate.get(0);
     }
 
-    private Predicate createGreaterThanPredicate(CriteriaBuilder cb, Root<T> root, String name, Object value) {
+    private Predicate createGreaterThanPredicate(CriteriaBuilder cb, Path<?> path, Object value) {
         if (value instanceof Date) {
-            return cb.greaterThan(root.get(name), (Date) value);
+            return cb.greaterThan(path.as(Date.class), (Date) value);
         } else if (value instanceof Number) {
-            return cb.gt(root.get(name).as(Number.class), (Number) value);
+            return cb.gt(path.as(Number.class), (Number) value);
         } else {
             throw new IllegalArgumentException("GT operator can only be applied to instances of Number or Date.");
         }
     }
 
-    private Predicate createGreaterThanOrEqualToPredicate(CriteriaBuilder cb, Root<T> root, String name, Object value) {
+    private Predicate createGreaterThanOrEqualToPredicate(CriteriaBuilder cb, Path<?> path, Object value) {
         if (value instanceof Date) {
-            return cb.greaterThanOrEqualTo(root.get(name), (Date) value);
+            return cb.greaterThanOrEqualTo(path.as(Date.class), (Date) value);
         } else if (value instanceof Number) {
-            return cb.ge(root.get(name).as(Number.class), (Number) value);
+            return cb.ge(path.as(Number.class), (Number) value);
         } else {
             throw new IllegalArgumentException("GE operator can only be applied to instances of Number or Date.");
         }
     }
 
-    private Predicate createLessThanPredicate(CriteriaBuilder cb, Root<T> root, String name, Object value) {
+    private Predicate createLessThanPredicate(CriteriaBuilder cb, Path<?> path, Object value) {
         if (value instanceof Date) {
-            return cb.lessThan(root.get(name), (Date) value);
+            return cb.lessThan(path.as(Date.class), (Date) value);
         } else if (value instanceof Number) {
-            return cb.lt(root.get(name).as(Number.class), (Number) value);
+            return cb.lt(path.as(Number.class), (Number) value);
         } else {
             throw new IllegalArgumentException("LT operator can only be applied to instances of Number or Date.");
         }
     }
 
-    private Predicate createLessThanOrEqualToPredicate(CriteriaBuilder cb, Root<T> root, String name, Object value) {
+    private Predicate createLessThanOrEqualToPredicate(CriteriaBuilder cb, Path<?> path, Object value) {
         if (value instanceof Date) {
-            return cb.lessThanOrEqualTo(root.get(name), (Date) value);
+            return cb.lessThanOrEqualTo(path.as(Date.class), (Date) value);
         } else if (value instanceof Number) {
-            return cb.le(root.get(name).as(Number.class), (Number) value);
+            return cb.le(path.as(Number.class), (Number) value);
         } else {
             throw new IllegalArgumentException("LE operator can only be applied to instances of Number or Date.");
         }

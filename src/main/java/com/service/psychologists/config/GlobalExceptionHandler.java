@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleResponseStatusException(HttpMessageNotReadableException ex, ServletWebRequest request) {
-        String message = "Request body is missing.";
+        String message = ex.getMessage() != null ? ex.getMessage() : "Request body is missing.";
 
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
 

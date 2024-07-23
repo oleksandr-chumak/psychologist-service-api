@@ -1,6 +1,4 @@
-package com.service.psychologists.core.repositories;
-
-import java.util.List;
+package com.service.psychologists.core.repositories.models;
 
 public class SearchParameterValidator {
 

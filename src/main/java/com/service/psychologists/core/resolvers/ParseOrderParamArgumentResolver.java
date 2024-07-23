@@ -1,7 +1,7 @@
 package com.service.psychologists.core.resolvers;
 
 import com.service.psychologists.core.annotations.ParsedOrderRequestParam;
-import com.service.psychologists.core.repositories.Order;
+import com.service.psychologists.core.repositories.models.Order;
 import com.service.psychologists.core.repositories.enums.OrderDirection;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
