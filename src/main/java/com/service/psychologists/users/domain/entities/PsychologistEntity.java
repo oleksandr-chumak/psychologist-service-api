@@ -47,7 +47,7 @@ public class PsychologistEntity {
     @Column(nullable = false)
     private String specialization;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "text")
     private String description;
 
     @Column(nullable = false)

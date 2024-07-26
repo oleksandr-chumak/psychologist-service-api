@@ -1,5 +1,6 @@
 package com.service.psychologists.users.controllers;
 
+import com.service.psychologists.core.models.PaginationResponse;
 import com.service.psychologists.core.utils.Mapper;
 import com.service.psychologists.users.domain.models.Psychologist;
 import com.service.psychologists.users.domain.models.PublicPsychologist;
@@ -33,9 +34,9 @@ public class PsychologistController {
     }
 
     @GetMapping(path = "/")
-    public Page<PublicPsychologist> index(Pageable pageable) {
+    public PaginationResponse<PublicPsychologist> index(Pageable pageable) {
         Page<Psychologist> psychologists = psychologistService.findAll(pageable);
-        return psychologists.map(publicPsychologistMapper::mapTo);
+        return PaginationResponse.fromPage(psychologists.map(publicPsychologistMapper::mapTo));
     }
 
     @GetMapping(path = "/{id}")

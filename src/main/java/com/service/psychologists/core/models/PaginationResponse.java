@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -13,13 +14,23 @@ import java.util.List;
 @Builder
 public class PaginationResponse<T> {
 
-    private int page;
+    private int currentPage;
 
     private int pageSize;
 
     private int totalPages;
 
-    private long totalItems;
+    private long totalCount;
 
-    private List<T> items;
+    private List<T> data;
+
+    public static <T> PaginationResponse<T> fromPage(Page<T> page) {
+        return PaginationResponse.<T>builder()
+                .currentPage(page.getNumber())
+                .pageSize(page.getSize())
+                .totalPages(page.getTotalPages())
+                .totalCount(page.getTotalElements())
+                .data(page.getContent())
+                .build();
+    }
 }
