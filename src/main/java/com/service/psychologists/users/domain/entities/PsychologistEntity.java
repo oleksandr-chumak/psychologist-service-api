@@ -34,6 +34,9 @@ public class PsychologistEntity {
     @Formula(value = "concat(first_name, ' ', last_name)")
     private String fullName;
 
+    @Formula("(select avg(f.rating) from feedbacks f where f.psychologist_id = id)")
+    private Float rating;
+
     @Column(nullable = false)
     private Integer experienceAmount;
 

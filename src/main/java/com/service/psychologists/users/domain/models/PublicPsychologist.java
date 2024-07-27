@@ -21,6 +21,8 @@ public class PublicPsychologist {
 
     private String fullName;
 
+    private Float rating;
+
     private String email;
 
     private Integer experienceAmount;
