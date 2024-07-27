@@ -2,7 +2,9 @@ package com.service.psychologists.feedbacks.services.impl;
 
 import com.service.psychologists.core.repositories.enums.ConditionOperator;
 import com.service.psychologists.core.repositories.enums.EqualityOperator;
+import com.service.psychologists.core.repositories.enums.OrderDirection;
 import com.service.psychologists.core.repositories.models.ComplexQuery;
+import com.service.psychologists.core.repositories.models.Order;
 import com.service.psychologists.core.repositories.models.SearchPredicateCriteria;
 import com.service.psychologists.core.utils.Mapper;
 import com.service.psychologists.feedbacks.domain.entities.FeedbackEntity;
@@ -40,7 +42,8 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .builder()
                 .filter(criteria)
                 .order(complexQuery.getOrder())
-                .join(complexQuery.getJoin())
+                .join(List.of("psychologist", "client"))
+                .order(List.of(new Order("createdAt", OrderDirection.DESC)))
                 .pageable(complexQuery.getPageable())
                 .build()
         );

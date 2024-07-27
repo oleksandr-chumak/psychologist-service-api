@@ -1,9 +1,12 @@
 package com.service.psychologists.feedbacks.controllers;
 
+import com.service.psychologists.core.models.PaginationResponse;
 import com.service.psychologists.core.repositories.models.ComplexQuery;
+import com.service.psychologists.core.utils.Mapper;
 import com.service.psychologists.feedbacks.domain.dto.CreateFeedbackDto;
 import com.service.psychologists.feedbacks.domain.dto.UpdateFeedbackDto;
 import com.service.psychologists.feedbacks.domain.models.Feedback;
+import com.service.psychologists.feedbacks.domain.models.PublicFeedback;
 import com.service.psychologists.feedbacks.services.FeedbackService;
 import com.service.psychologists.users.domain.models.Client;
 import com.service.psychologists.users.domain.models.Psychologist;
@@ -29,19 +32,32 @@ public class FeedbackController {
 
     final private ClientService clientService;
 
+    final private Mapper<Feedback, PublicFeedback> publicFeedbackMapper;
 
-    public FeedbackController(final FeedbackService feedbackService, final PsychologistService psychologistService, final ClientService clientService) {
+
+    public FeedbackController(
+            final FeedbackService feedbackService,
+            final PsychologistService psychologistService,
+            final ClientService clientService,
+            final Mapper<Feedback, PublicFeedback> publicFeedbackMapper
+    ) {
         this.feedbackService = feedbackService;
         this.psychologistService = psychologistService;
         this.clientService = clientService;
+        this.publicFeedbackMapper = publicFeedbackMapper;
     }
 
-    @GetMapping(path = "/psychologists/{psychologistsId}/feedbacks")
-    public Page<Feedback> index(@PathVariable @NotNull Long psychologistsId, Pageable pageable) {
+    @GetMapping(path = "/psychologists/{psychologistsId}/feedbacks/")
+    public PaginationResponse<PublicFeedback> index(@PathVariable @NotNull Long psychologistsId, Pageable pageable) {
         Psychologist psychologist = psychologistService.findById(psychologistsId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Psychologist not found"));
 
-        return feedbackService.findPsychologistFeedbacks(psychologist.getId(), ComplexQuery.builder().pageable(pageable).build());
+
+        Page<PublicFeedback> publicFeedbackPage = feedbackService
+                .findPsychologistFeedbacks(psychologist.getId(), ComplexQuery.builder().pageable(pageable).build())
+                .map(publicFeedbackMapper::mapTo);
+
+        return PaginationResponse.fromPage(publicFeedbackPage);
     }
 
     @GetMapping(path = "/feedbacks/{id}/")
@@ -66,8 +82,8 @@ public class FeedbackController {
         );
     }
 
-    @PostMapping(path = "/psychologists/{psychologistsId}/feedbacks")
-    public ResponseEntity<Feedback> create(@PathVariable @NotNull Long psychologistsId, @Valid @RequestBody CreateFeedbackDto body, Principal principal) {
+    @PostMapping(path = "/psychologists/{psychologistsId}/feedbacks/")
+    public ResponseEntity<PublicFeedback> create(@PathVariable @NotNull Long psychologistsId, @Valid @RequestBody CreateFeedbackDto body, Principal principal) {
         Psychologist psychologist = psychologistService.findById(psychologistsId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Psychologist not found"));
         Client client = clientService.findByEmail(principal.getName())
@@ -81,7 +97,7 @@ public class FeedbackController {
                 .build()
         );
 
-        return new ResponseEntity<>(feedback, HttpStatus.CREATED);
+        return new ResponseEntity<>(publicFeedbackMapper.mapTo(feedback), HttpStatus.CREATED);
     }
 
     @DeleteMapping(path = "/feedbacks/{id}")

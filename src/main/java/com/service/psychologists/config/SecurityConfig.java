@@ -3,6 +3,7 @@ package com.service.psychologists.config;
 import com.service.psychologists.auth.filters.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -49,9 +50,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/clients/**").authenticated())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/{id}", "/psychologists/").permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/me").authenticated())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/{psychologistId}/appointments").permitAll())
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/me/appointments", "/appointments/**").authenticated())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/me").authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.GET, "/psychologists/{psychologistId}/feedbacks/").permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(HttpMethod.POST, "/psychologists/{psychologistId}/feedbacks/").authenticated())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/psychologists/{psychologistId}/feedbacks/**", "/feedbacks/**").authenticated())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
