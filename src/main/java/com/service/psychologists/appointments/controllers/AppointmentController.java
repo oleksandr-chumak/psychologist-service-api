@@ -9,6 +9,7 @@ import com.service.psychologists.appointments.services.AppointmentService;
 import com.service.psychologists.appointments.validators.AppointmentSearchParameterValidator;
 import com.service.psychologists.core.annotations.ParsedOrderRequestParam;
 import com.service.psychologists.core.annotations.ParsedSearchRequestParam;
+import com.service.psychologists.core.models.PaginationResponse;
 import com.service.psychologists.core.repositories.enums.ConditionOperator;
 import com.service.psychologists.core.repositories.enums.EqualityOperator;
 import com.service.psychologists.core.repositories.models.ComplexQuery;
@@ -72,19 +73,21 @@ public class AppointmentController {
 
 
     @GetMapping(path = "/psychologists/{psychologistId}/appointments")
-    public Page<PublicAppointmentWithoutClientAndPsychologist> index(
+    public PaginationResponse<PublicAppointmentWithoutClientAndPsychologist> index(
             @PathVariable Long psychologistId,
             @ParsedSearchRequestParam(validator = AppointmentSearchParameterValidator.class) ArrayList<SearchPredicateCriteria<?>> filter,
             @ParsedOrderRequestParam(allowedValues = {"id"}) ArrayList<Order> order,
             Pageable pageable
     ) {
-        return appointmentService.findPsychologistAppointment(psychologistId, ComplexQuery
+        Page<PublicAppointmentWithoutClientAndPsychologist> appointments = appointmentService.findPsychologistAppointment(psychologistId, ComplexQuery
                 .builder()
                 .pageable(pageable)
                 .filter(filter)
                 .order(order)
                 .build()
         ).map(publicAppointmentWithoutClientAndPsychologistMapper::mapTo);
+
+        return PaginationResponse.fromPage(appointments);
     }
 
     @GetMapping(path = "/me/appointments")
